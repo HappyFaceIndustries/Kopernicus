@@ -41,7 +41,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_OceanFX))]
             public class OceanFX : ModLoader, IParserEventSubscriber
             {
                 // Actual PQS mod we are loading

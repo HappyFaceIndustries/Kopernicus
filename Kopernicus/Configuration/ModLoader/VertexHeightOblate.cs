@@ -40,7 +40,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_OblateFixed))]
             public class VertexHeightOblate : ModLoader, IParserEventSubscriber
             {
                 // Mod-Fix, because of hell-ish buggyness

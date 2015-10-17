@@ -40,7 +40,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_VertexSimplexHeightFlatten))]
             public class VertexSimplexHeightFlatten : ModLoader, IParserEventSubscriber
             {
                 // Actual PQS mod we are loading

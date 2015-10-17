@@ -40,7 +40,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_OffsetFixed))]
             public class VertexHeightOffset : ModLoader, IParserEventSubscriber
             {
                 // Mod-Fix, because of hell-ish buggyness

@@ -45,7 +45,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSLandControl))]
             public class LandControl : ModLoader, IParserEventSubscriber
             {
                 private class SimplexLoader

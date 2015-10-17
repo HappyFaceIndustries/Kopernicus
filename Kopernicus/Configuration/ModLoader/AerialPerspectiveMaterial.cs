@@ -41,6 +41,7 @@ namespace Kopernicus
         namespace ModLoader
         {
             [RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_AerialPerspectiveMaterial))]
             public class AerialPerspectiveMaterial : ModLoader, IParserEventSubscriber
             {
                 // Actual PQS mod we are loading

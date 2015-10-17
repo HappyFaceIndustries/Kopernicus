@@ -39,7 +39,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_BillboardObject))]
             public class BillboardObject : ModLoader, IParserEventSubscriber
             {
                 // Actual PQS mod we are loading

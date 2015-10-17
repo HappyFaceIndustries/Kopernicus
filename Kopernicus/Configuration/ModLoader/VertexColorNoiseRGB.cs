@@ -40,7 +40,8 @@ namespace Kopernicus
     {
         namespace ModLoader
         {
-            [RequireConfigType(ConfigType.Node)]
+			[RequireConfigType(ConfigType.Node)]
+			[ModLoaderAttribute(typeof(PQSMod_VertexColorNoiseRGB))]
             public class VertexColorNoiseRGB : ModLoader, IParserEventSubscriber
             {
                 // Actual PQS mod we are loading
