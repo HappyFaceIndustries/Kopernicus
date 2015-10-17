@@ -37,6 +37,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using Kopernicus.Configuration.ModLoader;
+
 using UnityEngine;
 
 // Disable the "private fields `` is assigned but its value is never used warning"

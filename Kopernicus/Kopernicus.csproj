@@ -188,6 +188,7 @@
     <Compile Include="Configuration\ModLoader\HeightColorMap.cs" />
     <Compile Include="Configuration\ModLoader\VertexSimplexNoiseColor.cs" />
     <Compile Include="Configuration\PQSModLoader.cs" />
+    <Compile Include="Configuration\ModLoader\ModLoaderAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Configuration\Resources\Shaders.resx">
