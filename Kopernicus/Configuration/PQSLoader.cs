@@ -240,7 +240,10 @@ namespace Kopernicus
                 collider.order = 100;
 
                 // Create physics material editor
-                physicsMaterial = new PhysicsMaterialParser (collider.physicsMaterial);
+				physicsMaterial = new PhysicsMaterialParser (collider.physicsMaterial);
+
+				//set up the ModsLoader
+				ModsLoader = new PQSModLoader (pqsVersion);
             }
 
             /**
@@ -309,7 +312,7 @@ namespace Kopernicus
 
             void IParserEventSubscriber.PostApply(ConfigNode node)
             {
-				ModsLoader.SphereApply ();
+
             }
         }
     }

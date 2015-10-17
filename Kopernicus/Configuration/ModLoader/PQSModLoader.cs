@@ -65,8 +65,6 @@ namespace Kopernicus
 					private set;
 				}
 
-				public ModLoader[] Mods = null;
-
 				// IParserEventSubscriber methods
 				void IParserEventSubscriber.Apply(ConfigNode node)
 				{
@@ -74,11 +72,16 @@ namespace Kopernicus
 				}
 				void IParserEventSubscriber.PostApply(ConfigNode node)
 				{
-					// Get all preexisting PQSMods on the PQS, before any are added, as to avoid conflicts
-					var existingMods = pqsVersion.GetComponentsInChildren<PQSMod> ();
-					var patchedMods = new List<PQSMod> ();
+					Logger.Active.Log ("Loading and patching PQS Mods for " + pqsVersion.name);
 
-					var allMods = new List<ModLoader> ();
+					// Get all preexisting PQSMods on the PQS, before any are added, as to avoid conflicts
+					var existingMods = pqsVersion.GetComponentsInChildren<PQSMod> (true);
+					foreach (var existingMod in existingMods)
+					{
+						Logger.Active.Log ("PQSLoader.PostApply(ConfigNode): Preexisting Mod => " + existingMod.name + " : " + existingMod.GetType().Name);
+					}
+
+					var patchedMods = new List<PQSMod> ();
 
 					// Go through all nodes, added PQSMods from ModLoaders
 					foreach (var modNode in node.GetNodes())
@@ -88,7 +91,7 @@ namespace Kopernicus
 						var modLoaderType = GetModLoaderType (modNode.name, out pqsModType);
 						if (modLoaderType == null || pqsModType == null)
 						{
-							Logger.Active.Log ("PQS Mod node " + modNode.name + " was not recognized");
+							Logger.Active.Log ("PQSLoader.PostApply(ConfigNode): PQS Mod node " + modNode.name + " was not recognized");
 							continue;
 						}
 
@@ -135,20 +138,8 @@ namespace Kopernicus
 							modLoader.mod.gameObject.layer = GameLayers.LocalSpace;
 							modLoader.mod.sphere = pqsVersion;
 
-							allMods.Add (modLoader);
+							modLoader.SphereApply ();
 						}
-					}
-
-					// Put all ModLoaders into the Mods array
-					Mods = allMods.ToArray ();
-				}
-
-				public void SphereApply()
-				{
-					//call SphereApply
-					foreach (var mod in Mods)
-					{
-						mod.SphereApply ();
 					}
 				}
 
