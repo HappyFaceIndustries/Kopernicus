@@ -167,6 +167,12 @@ namespace Kopernicus
                 // Sets the SOI of the root-body to infinite
                 system.rootBody.celestialBody.sphereOfInfluence = Double.PositiveInfinity;
 
+                // Fix doubled flightGlobals
+                List<int> numbers = new List<int>() { 0 };
+                int index = bodies.Sum(b => b.Value.generatedBody.flightGlobalsIndex);
+                PatchFGI(ref numbers, ref index, system.rootBody);
+
+                // Return the System
                 return system;
             }
 
@@ -177,6 +183,18 @@ namespace Kopernicus
                 foreach (PSystemBody child in body.children) 
                 {
                     RecursivelySortBodies (child);
+                }
+            }
+
+            // Patch the FlightGlobalsIndex of bodies
+            private void PatchFGI(ref List<int> numbers, ref int index, PSystemBody rootBody)
+            {
+                foreach (PSystemBody body in rootBody.children)
+                {
+                    if (numbers.Contains(body.flightGlobalsIndex))
+                        body.flightGlobalsIndex = index++;
+                    numbers.Add(body.flightGlobalsIndex);
+                    PatchFGI(ref numbers, ref index, body);
                 }
             }
         }

@@ -557,65 +557,6 @@ namespace Kopernicus
             }
         }
 
-        /** Parser for animation curve **/
-        [RequireConfigType(ConfigType.Node)]
-        public class AnimationCurveParser : IParserEventSubscriber
-        {
-            // Animation curve we are generating
-            public AnimationCurve curve { get; private set; }
-
-            // Build the curve from data found in the node
-            void IParserEventSubscriber.Apply(ConfigNode node)
-            {
-                // List of keyframes
-                SortedList<int, Keyframe> keyframes = new SortedList<int, Keyframe>();
-
-                int key = 0;
-
-                // Iterate through all the values in the node (all are keyframes)
-                foreach(ConfigNode.Value frame in node.values)
-                {
-                    // Get an array of the frame data
-                    List<float> value = new List<float> ();
-                    foreach (string e in frame.value.Split(' ')) 
-                        value.Add(float.Parse(e));
-
-                    // Build the keyframe
-                    Keyframe keyframe;
-                    if(value.Count == 2)
-                        keyframe = new Keyframe(value[0], value[1]);
-                    else if(value.Count == 4)
-                        keyframe = new Keyframe(value[0], value[1], value[2], value[3]);
-                    else
-                        throw new Exception("Keyframe consists of either 2 or 4 floats");
-
-                    // Add the keyframe to the list
-                    keyframes.Add(key, keyframe);
-                    key++;
-                }
-
-                // Create the final animation curve
-                curve = new AnimationCurve();
-                foreach(KeyValuePair<int, Keyframe> keyframe in keyframes)
-                    curve.AddKey(keyframe.Value);
-            }
-
-            // We don't use this
-            void IParserEventSubscriber.PostApply(ConfigNode node) { }
-
-            // Default constructor
-            public AnimationCurveParser ()
-            {
-                this.curve = null;
-            }
-
-            // Construct this fine object
-            public AnimationCurveParser (AnimationCurve curve)
-            {
-                this.curve = curve;
-            }
-        }
-
         /** Parser for Physics Material **/
         [RequireConfigType(ConfigType.Node)]
         public class PhysicsMaterialParser : IParserEventSubscriber
@@ -692,66 +633,85 @@ namespace Kopernicus
         [RequireConfigType(ConfigType.Value)]
         public class MeshParser : IParsable
         {
-            public Mesh value;
+            public Mesh mesh;
+            public GameObject Object;
             public void SetFromString (string s)
             {
                 // Check if we are attempting to load a builtin mesh
-                if (s.StartsWith ("BUILTIN/")) 
+                if (s.StartsWith("BUILTIN/"))
                 {
-                    string meshName = Regex.Replace (s, "BUILTIN/", "");
-                    value = UnityEngine.Resources.FindObjectsOfTypeAll<Mesh> ().Where (mesh => mesh.name == meshName).First ();
-                    return;
-                }
+                    try
+                    {
+                        string objectName = Regex.Replace(s, "BUILTIN/", "");
+                        Object = Resources.FindObjectsOfTypeAll<GameObject>().Where(o => o.name == objectName).First();
+                        List<MeshFilter> filters = Object.GetComponentsInChildren<MeshFilter>(true).ToList();
+                        List<CombineInstance> combines = new List<CombineInstance>();
+                        filters.ForEach(f => combines.Add(new CombineInstance() { mesh = f.sharedMesh }));
+                        mesh = new Mesh();
+                        mesh.CombineMeshes(combines.ToArray());
+                    }
+                    catch { }
 
-                String path = KSPUtil.ApplicationRootPath + "GameData/" + s;
-                if (System.IO.File.Exists(path))
+                    // Check if we've found a mesh, otherwise try to find it directly
+                    if (mesh == null)
+                    {
+                        string meshName = Regex.Replace(s, "BUILTIN/", "");
+                        mesh = Resources.FindObjectsOfTypeAll<Mesh>().Where(m => m.name == meshName).First();
+                        Object = new GameObject(meshName);
+                        Object.AddComponent<MeshFilter>().sharedMesh = mesh;
+                        MonoBehaviour.DontDestroyOnLoad(Object);
+                    }
+                }
+                else if (s.EndsWith(".obj")) // Check which Mesh-Type we're loading
                 {
-                    value = ObjImporter.ImportFile(path);
-                    value.name = Path.GetFileNameWithoutExtension(path);
-                    return;
+                    string path = KSPUtil.ApplicationRootPath + "GameData/" + s;
+                    if (File.Exists(path))
+                    {
+                        mesh = ObjImporter.ImportFile(path);
+                        mesh.name = Path.GetFileNameWithoutExtension(path);
+                        Object = new GameObject(mesh.name);
+                        UnityEngine.Object.DontDestroyOnLoad(Object);
+                        Object.AddComponent<MeshFilter>().sharedMesh = mesh;
+                        return;
+                    }
+                }
+                else if (s.EndsWith(".mu"))
+                {
+                    // If there's a model, import it
+                    string path = Regex.Replace(s, ".mu", "");
+                    if (GameDatabase.Instance.ExistsModel(path))
+                    {
+                        Object = GameDatabase.Instance.GetModel(path);
+                        List<MeshFilter> filters = Object.GetComponentsInChildren<MeshFilter>(true).ToList();
+                        List<CombineInstance> combines = new List<CombineInstance>();
+                        filters.ForEach(f => combines.Add(new CombineInstance() { mesh = f.sharedMesh }));
+                        mesh = new Mesh();
+                        mesh.CombineMeshes(combines.ToArray());
+                        return;
+                    }
                 }
 
                 // Mesh was not found
-                value = null;
+                mesh = null;
+                Object = null;
             }
             public MeshParser ()
             {
                 
             }
-            public MeshParser (Mesh value)
+            public MeshParser (Mesh mesh)
             {
-                this.value = value;
+                this.mesh = mesh;
+            }
+            public MeshParser(GameObject Object)
+            {
+                this.Object = Object;
+            }
+            public MeshParser(GameObject Object, Mesh mesh)
+            {
+                this.Object = Object;
+                this.mesh = mesh;
             }
         }
-
-		[RequireConfigType(ConfigType.Value)]
-		public class MuParser : IParsable
-		{
-			public GameObject value;
-
-			public void SetFromString (string s)
-			{
-				// If there's a model, import it
-				if (GameDatabase.Instance.ExistsModel (s))
-				{
-					value = GameDatabase.Instance.GetModel (s);
-					return;
-				}
-
-				// Otherwise, set the value to null
-				value = null;
-			}
-
-			// Default constructor
-			public MuParser()
-			{
-			}
-
-			// Initializing constructor
-			public MuParser(GameObject value)
-			{
-				this.value = value;
-			}
-		}
     }
 }

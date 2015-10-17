@@ -1,6 +1,6 @@
-Kopernicus Beta Release 2.4
+Kopernicus Beta Release 4
 ==============================
-July 16th, 2015
+September 14th, 2015
 
 Created by: - Bryce C Schroeder (bryce.schroeder@gmail.com)
    		    - Nathaniel R. Lewis (linux.robotdude@gmail.com)
@@ -12,22 +12,12 @@ Additional Content by: Gravitasi, aftokino, KCreator, Padishar, Kragrathea, Oven
 
 New in this version
 -------------------
-- Added navballSwitchRadiusMult-Parser
-- Added Parser for PQSLandControl and custom Ground Scatters (thanks Gravitasi!)
-- Fixed Logging-Issue
-- Removed the generation of PQSCache presets in order to fix a bug
-- Added Parsers for CraterCurve and JitterCurve to the VoronoiCraters-Parser
-- Added inverseRotThresholdAltitude-Parser
-- Fixed Lightning-bug in VAB
-- EVE clouds are now rendered through rings
-- Barycenters don't show a thumbnail in the R&D
-- Fixed a bug with builtin MapSO's, they work now correct
-- Added custom GroundScatter to the Hodor-example
-
-New in Beta 2.4 [Bugfix-Update]
----------------
-- Fixed Bug with PQSLandControl-Patching
-- Fixed a bug with the Barycenters
+- finalizeOrbits only recalculates the SOI, if it is not set in Properties { }
+- Optimizations for non spherical oceans
+- Kopernicus now sets the altitude where the "space-music" starts
+- Fixed a bug with SpaceCenter and recovery distances.
+- Fixed a bug with the flightGlobalsIndex patcher, now every body's flightGlobalsIndex is fixed.
+- Other minor improvements
 
 Note - reparenting Kerbin or the Sun causes the sky to be incorrect in the space center view. It is, however, correct in the flight view and the flight map view.  Reparenting the sun causes other stars positions to not update in the tracking station for some reason.
 
@@ -56,7 +46,7 @@ Instructions
 
 Examples
 ----------
-Selectively copy folders inside KopernicusExamples/ into a GameData/KopernicusExamples/ folder.  There are a number of examples of how to use Kopernicus.
+Selectively copy folders inside [KopernicusExamples/](https://github.com/Kopernicus/KopernicusExamples/) into a GameData/KopernicusExamples/ folder.  There are a number of examples of how to use Kopernicus.
 
 
 Information
