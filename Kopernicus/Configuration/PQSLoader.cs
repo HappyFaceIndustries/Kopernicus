@@ -145,6 +145,9 @@ namespace Kopernicus
             [ParserTarget("FallbackMaterial", optional = true, allowMerge = true)]
             private PQSProjectionFallbackLoader fallbackMaterial;
 
+			[ParserTarget("Mods", optional = true, allowMerge = true)]
+			private PQSModLoader ModsLoader;
+
             /**
              * Constructor for new PQS
              **/
@@ -292,6 +295,9 @@ namespace Kopernicus
                 fallbackMaterial = new PQSProjectionFallbackLoader (pqsVersion.fallbackMaterial);
                 pqsVersion.fallbackMaterial = fallbackMaterial; 
                 fallbackMaterial.name = Guid.NewGuid ().ToString ();
+
+				//set up the ModsLoader
+				ModsLoader = new PQSModLoader (pqsVersion);
             }
 
             void IParserEventSubscriber.Apply(ConfigNode node)
@@ -301,63 +307,7 @@ namespace Kopernicus
 
             void IParserEventSubscriber.PostApply(ConfigNode node)
             {
-                if (!node.HasNode ("Mods"))
-                    return;
-
-                List<PQSMod> patchedMods = new List<PQSMod>();
-
-                // Load mods manually because of patching
-                foreach (ConfigNode mod in node.GetNode ("Mods").nodes) 
-                {
-                    Type loaderType = Type.GetType ("Kopernicus.Configuration.ModLoader." + mod.name);
-                    if (loaderType == null)
-                    {
-                        foreach (AssemblyLoader.LoadedAssembly assembly in AssemblyLoader.loadedAssemblies)
-                        {
-                            foreach (Type type in assembly.assembly.GetExportedTypes())
-                            {
-                                if (type.ToString() == "Kopernicus.Configuration.ModLoader." + mod.name)
-                                {
-                                    loaderType = type;
-                                }
-                            }
-                        }
-                    }
-                    Type modType = Type.GetType ((mod.name != "LandControl" ? "PQSMod_" + mod.name : "PQSLandControl") + ", Assembly-CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-
-                    // Do any PQS Mods already exist on this PQS matching this mod?
-                    IEnumerable<PQSMod> existingMods = pqsVersion.GetComponentsInChildren<PQSMod>(true).Where(m => m.GetType().Equals(modType) && 
-                                                                                                                    m.transform.parent == pqsVersion.transform);
-                    ModLoader.ModLoader loader = null;
-                    if (existingMods.Count () > 0) 
-                    {
-                        // Attempt to find a PQS mod we can edit that we have not edited before
-                        PQSMod existingMod = existingMods.Where (m => !patchedMods.Contains(m) && (mod.HasValue ("name") ? m.name == mod.GetValue ("name") : true))
-                                                         .FirstOrDefault ();
-                        if (existingMod != null) 
-                        {
-                            loader = Parser.CreateObjectFromConfigNode (loaderType, mod, new object[] { existingMod }) as ModLoader.ModLoader;
-                            patchedMods.Add (existingMod);
-
-                            Logger.Active.Log("PQSLoader.PostApply(ConfigNode): Patched PQS Mod => " + modType);
-                        }
-                    }
-
-                    if (loader == null) 
-                    {
-                        loader = Parser.CreateObjectFromConfigNode (loaderType, mod) as ModLoader.ModLoader;
-                        Logger.Active.Log ("PQSLoader.PostApply(ConfigNode): Added PQS Mod => " + modType);
-                    }
-
-                    if (loader.mod != null)
-                    {
-                        loader.mod.transform.parent = pqsVersion.transform;
-                        loader.mod.gameObject.layer = Constants.GameLayers.LocalSpace;
-                        loader.mod.sphere = pqsVersion;
-                        if (loader.GetType() == typeof(ModLoader.LandControl))
-                            (loader as ModLoader.LandControl).SphereApply();
-                    }
-                }
+				ModsLoader.SphereApply ();
             }
         }
     }
