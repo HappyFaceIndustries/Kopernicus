@@ -890,7 +890,7 @@ namespace Kopernicus
                 }
 
                 // We need the Sphere-Transform :D
-                public void SphereApply()
+				public override void SphereApply ()
                 {
                     // Add Colliders to the scatters
                     foreach (PQSLandControl.LandClassScatter scatter in _mod.scatters)

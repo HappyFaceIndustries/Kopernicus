@@ -34,13 +34,15 @@
 using System;
 using UnityEngine;
 
+using Kopernicus.Configuration;
+
 namespace Kopernicus
 {
     namespace Configuration
     {
         namespace ModLoader
         {
-            [RequireConfigType(Kopernicus.Configuration.ConfigType.Node)]
+            [RequireConfigType(ConfigType.Node)]
             public class ModLoader
             {
                 // The mod loader must always be able to return a mod
@@ -66,6 +68,12 @@ namespace Kopernicus
                 {
                     set { mod.modEnabled = value.value; }
                 }
+
+				// A virtual method that gets called after all of the PQSMods get loaded, and added to the sphere
+				public virtual void SphereApply()
+				{
+
+				}
             }
         }
     }
